@@ -88,4 +88,23 @@ bibliotecaLigera :: Biblioteca -> Bool
 bibliotecaLigera biblioteca = all esLecturaLigera biblioteca
 
 
-    
+    {- PUNTO 6: El género de un libro. Diremos que:
+                        - todos los libros escritos por Stephen King son de terror
+                        - los libros escritos por un autor Japonés son manga
+                        - los que tienen menos de 40 páginas son cómics
+                        - el resto no están clasificados.-}
+
+type Genero = String
+
+autoresJaponeses :: [String]
+autoresJaponeses = ["Hajime"]
+
+esDeAutorJapones :: Libro -> Bool
+esDeAutorJapones unLibro = (elem (autor unLibro)) autoresJaponeses
+
+genero :: Libro -> Genero
+genero unLibro 
+    | esDeAutorJapones unLibro = "Manga"
+    | esDeStephenKing unLibro = "Terror"
+    | esLecturaLigera unLibro = "Comic"
+    | otherwise = "Sin categoria"
