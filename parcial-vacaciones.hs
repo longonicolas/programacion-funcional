@@ -15,30 +15,54 @@ data Turista = Turista{
     }deriving Show
 
 ana :: Turista
-ana = Turista 0 21 False ["Español"]
+ana = Turista 0 21 False ["Espaniol"]
 
 beto :: Turista
-cathi :: Turista
-
 beto = Turista 15 15 True []
-cathi = Turista 15 15 True ["Catalán"]
+
+cathi :: Turista
+cathi = Turista 15 15 True ["Catalan"]
+
+-- funciones auxiliares
+
+cambiarCansancio delta turista = turista{cansancio = cansancio turista + delta}
+
+cambiarEstres delta turista = turista{estres = estres turista + delta}
+
+aprenderIdioma idioma turista = turista{idiomas = idiomas turista ++ [idioma]}
+
+viajarAcompaniado turista = turista{modoDeViaje = False}
+
+intensidad minutos = div minutos 4
+
+cambiarEstresPorcentual porcentaje unTurista = unTurista{estres = estres unTurista + div (porcentaje * estres unTurista) 100}
+
+deltaSegun :: (a -> Int) -> a -> a -> Int
+deltaSegun f algo1 algo2 = f algo1 - f algo2
+
 
 irALaPlaya :: Excursion
 irALaPlaya unTurista 
-        | modoDeViaje unTurista = unTurista{cansancio = cansancio unTurista - 5 }
-        | otherwise = unTurista{estres = estres unTurista - 1}
+        | modoDeViaje unTurista = cambiarCansancio (-5) unTurista
+        | otherwise = cambiarEstres (-1) unTurista
 
 apreciarElPaisaje :: String -> Excursion
-apreciarElPaisaje paisaje unTurista = unTurista{ estres = estres unTurista - (length paisaje)}
+apreciarElPaisaje paisaje unTurista = cambiarEstres (-length paisaje) unTurista
 
 salirAHablarUnIdioma :: Idioma -> Excursion
-salirAHablarUnIdioma idioma unTurista = unTurista{ idiomas = idiomas unTurista ++ [idioma], modoDeViaje = not $ modoDeViaje unTurista}
+salirAHablarUnIdioma idioma = viajarAcompaniado . aprenderIdioma idioma 
 
 caminar :: Int -> Excursion
-caminar tiempoCaminado unTurista = unTurista{ cansancio = cansancio unTurista + (div tiempoCaminado 4), estres = estres unTurista - ((div tiempoCaminado 4))}
+caminar tiempoCaminado = cambiarCansancio (intensidad tiempoCaminado) . cambiarEstres (-intensidad tiempoCaminado) 
 
 paseoEnBarco :: String -> Excursion
 paseoEnBarco marea unTurista
-        | marea == "fuerte" = unTurista{ estres = estres unTurista + 6, cansancio = cansancio unTurista + 10}
+        | marea == "fuerte" =  cambiarEstres (6) $ cambiarCansancio (10) unTurista
         | marea == "tranquila" = caminar 10 (salirAHablarUnIdioma "Aleman" (apreciarElPaisaje "mar" unTurista))
         | otherwise = unTurista
+
+hacerUnaExcursion :: Excursion -> Turista -> Turista
+hacerUnaExcursion excursion = cambiarEstresPorcentual (-10) . excursion 
+
+deltaExcursionSegun :: (Turista -> Int) -> Turista -> Excursion -> Int
+deltaExcursionSegun indice unTurista excursion = deltaSegun indice unTurista (hacerUnaExcursion excursion unTurista) 
