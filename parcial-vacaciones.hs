@@ -40,6 +40,7 @@ cambiarEstresPorcentual porcentaje unTurista = unTurista{estres = estres unTuris
 deltaSegun :: (a -> Int) -> a -> a -> Int
 deltaSegun f algo1 algo2 = f algo1 - f algo2
 
+-- EXCURSIONES
 
 irALaPlaya :: Excursion
 irALaPlaya unTurista 
@@ -65,4 +66,8 @@ hacerUnaExcursion :: Excursion -> Turista -> Turista
 hacerUnaExcursion excursion = cambiarEstresPorcentual (-10) . excursion 
 
 deltaExcursionSegun :: (Turista -> Int) -> Turista -> Excursion -> Int
-deltaExcursionSegun indice unTurista excursion = deltaSegun indice unTurista (hacerUnaExcursion excursion unTurista) 
+deltaExcursionSegun indice unTurista excursion = deltaSegun indice (hacerUnaExcursion excursion unTurista) unTurista  
+
+
+excursionEducativa :: Turista -> Excursion -> Bool
+excursionEducativa unTurista excursion = (deltaExcursionSegun (length . idiomas) (unTurista) (hacerUnaExcursion excursion) ) >= 1
