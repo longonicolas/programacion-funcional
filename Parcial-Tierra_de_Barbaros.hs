@@ -1,6 +1,6 @@
 import Text.Show.Functions ()
-
 import Data.Char (toUpper, isUpper)
+
 type Habilidad = String
 type Objeto = Barbaro -> Barbaro
 
@@ -14,6 +14,7 @@ data Barbaro = Barbaro{
 -- PUNTO 1
 
 dave = Barbaro "Davo" 100 ["Fiumba", "Porcino"] []
+juan = Barbaro "Juan" 100 ["Pelear", "Porcino","Robar"] []
 
 espada :: Int -> Objeto
 espada peso unBarbaro = modificarFuerza (2 * peso) unBarbaro
@@ -81,8 +82,8 @@ obtenerPoder :: Barbaro -> Int
 obtenerPoder unBarbaro = length . concat . habilidades $ unBarbaro
 --
 
---caligrafia :: Prueba
---caligrafia unBarbaro =  cantVocalesHabilidad 3 . habilidadesConMayuscula $ unBarbaro
+caligrafia :: Prueba
+caligrafia unBarbaro = obtenerVocales unBarbaro > 3 && habilidadesConMayuscula unBarbaro
 
 habilidadesConMayuscula :: Barbaro -> Bool
 habilidadesConMayuscula unBarbaro = all isUpper . map obtenerPrimerLetra . habilidades $ unBarbaro
@@ -90,11 +91,17 @@ habilidadesConMayuscula unBarbaro = all isUpper . map obtenerPrimerLetra . habil
 obtenerPrimerLetra :: Habilidad -> Char
 obtenerPrimerLetra habilidad = head habilidad
 
---cantVocalesHabilidad :: Barbaro -> [Habilidad]
---cantVocalesHabilidad cantidadRequerida unBarbaro = filter contarVocales . amplificar . habilidades $ unBarbaro
+obtenerVocales :: Barbaro -> Int
+obtenerVocales unBarbaro = length . filter esVocal . concat . habilidades . amplificar $ unBarbaro
 
-obtenerVocales :: Barbaro -> String
-obtenerVocales unBarbaro = concat . habilidades . amplificar . habilidades $ unBarbaro
+esVocal :: Char -> Bool
+esVocal char = elem char "aeiouAEIOU" 
 
-esVocal :: Habilidad -> Bool
-esVocal habilidad = elem (head habilidad) "aeiouAEIOU"  
+sobrevivientes :: [Barbaro] -> Aventura -> [Barbaro]
+sobrevivientes barbaros aventura = filter (sobreviveAAventura aventura) barbaros
+
+sobreviveAAventura ::  Aventura -> Barbaro -> Bool
+sobreviveAAventura aventura unBarbaro = any (sobreviveAEvento unBarbaro) aventura
+
+sobreviveAEvento :: Barbaro -> Evento -> Bool
+sobreviveAEvento unBarbaro evento = evento unBarbaro
