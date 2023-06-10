@@ -14,7 +14,7 @@ data Barbaro = Barbaro{
 -- PUNTO 1
 
 dave = Barbaro "Davo" 100 ["Fiumba", "Porcino"] []
-juan = Barbaro "Juan" 100 ["Pelear", "Porcino","Robar"] []
+juan = Barbaro "Astro" 100 ["Pelear", "Porcino","Robar","Escribir Poesía Atroz"] [espada 2,varitaDefectuosa,ardilla]
 
 espada :: Int -> Objeto
 espada peso unBarbaro = modificarFuerza (2 * peso) unBarbaro
@@ -65,15 +65,12 @@ tiene habilidad unBarbaro = elem habilidad . habilidades $ unBarbaro
 cremalleraDelTiempo :: Evento
 cremalleraDelTiempo unBarbaro =  nombre unBarbaro == "Faffy" || nombre unBarbaro == "Astro"
 -- punto 3.3
-ritualDeFechorias :: [Prueba] -> Evento
-ritualDeFechorias pruebas unBarbaro = any (\prueba -> prueba unBarbaro) pruebas
---ritualDeFechorias' :: [Prueba] -> Evento
---ritualDeFechorias' pruebas unBarbaro = any (\prueba -> prueba unBarbaro) pruebas
---hacerPrueba :: Prueba -> Barbaro -> Bool
---hacerPrueba prueba unBarbaro = prueba unBarbaro
+ritualDeFechorias :: Evento
+ritualDeFechorias unBarbaro = any (hacerPrueba unBarbaro) [saqueo,gritoDeGuerra,caligrafia]
+hacerPrueba unBarbaro prueba = prueba unBarbaro
 
 saqueo :: Prueba
-saqueo unBarbaro =  tiene "robar" unBarbaro && fuerza unBarbaro > 80
+saqueo unBarbaro =  tiene "Robar" unBarbaro && fuerza unBarbaro > 80
 
 gritoDeGuerra :: Prueba
 gritoDeGuerra unBarbaro = obtenerPoder unBarbaro >= 4 * length (objetos unBarbaro)
@@ -97,11 +94,11 @@ obtenerVocales unBarbaro = length . filter esVocal . concat . habilidades . ampl
 esVocal :: Char -> Bool
 esVocal char = elem char "aeiouAEIOU" 
 
-sobrevivientes :: [Barbaro] -> Aventura -> [Barbaro]
-sobrevivientes barbaros aventura = filter (sobreviveAAventura aventura) barbaros
+-- PUNTO 4
 
-sobreviveAAventura ::  Aventura -> Barbaro -> Bool
-sobreviveAAventura aventura unBarbaro = any (sobreviveAEvento unBarbaro) aventura
+sinRepetidos :: Eq a => [a] -> [a]
+sinRepetidos [] = []
+sinRepetidos (a:b)
+        | elem a b = sinRepetidos b
+        | otherwise = (a : sinRepetidos b)
 
-sobreviveAEvento :: Barbaro -> Evento -> Bool
-sobreviveAEvento unBarbaro evento = evento unBarbaro
