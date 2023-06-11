@@ -102,3 +102,17 @@ sinRepetidos (a:b)
         | elem a b = sinRepetidos b
         | otherwise = (a : sinRepetidos b)
 
+descendiente :: Barbaro -> Barbaro
+descendiente unBarbaro = unBarbaro{nombre = nombre unBarbaro ++ ("*"), habilidades = sinRepetidos (habilidades unBarbaro)}
+
+aplicarObjetos :: Barbaro -> Barbaro
+aplicarObjetos unBarbaro = foldr (aplicarObjeto) unBarbaro (objetos unBarbaro)
+
+aplicarObjeto :: Objeto -> Barbaro -> Barbaro
+aplicarObjeto objeto barbaro = objeto barbaro
+
+descendientes :: Barbaro -> Barbaro
+descendientes barbaro =  aplicarObjetos . descendiente $ barbaro
+
+descendientesInfinitos :: Barbaro -> [Barbaro]
+descendientesInfinitos padreBarbaro = iterate descendientes padreBarbaro
