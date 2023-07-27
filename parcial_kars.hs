@@ -17,16 +17,15 @@ type Distancia = Int
 data Carrera = Carrera {
   vueltas :: Int,
   longitudPista :: Int,
-  participantes :: Participantes,
+  participantes :: [Auto],
   publico :: Publico
 } deriving Show
 
-type Participantes = [Auto]
 type Publico = [String]
 
 
 carrerarda :: Carrera
-carrerarda = Carrera 5 100 [rodra,gushtav] []
+carrerarda = Carrera 6 5 [rodra,gushtav] []
 
 rochaMcQueen :: Auto
 rochaMcQueen = Auto "rochaMcQueen" 282 10 "Ronco" deReversaRocha
@@ -44,16 +43,19 @@ rodra = Auto "rodra" 153 8 "Tais" deReversaRocha
 
 
 mapNafta :: (Int -> Int) -> Auto -> Auto
-mapNafta f unAuto = unAuto { nafta = f . nafta $ unAuto }
+mapNafta f unAuto = unAuto{ nafta = f . nafta $ unAuto }
 
 mapVelocidad :: (Int -> Int) -> Auto -> Auto
-mapVelocidad f unAuto = unAuto { velocidad = f . velocidad $ unAuto }
+mapVelocidad f unAuto = unAuto{ velocidad = f . velocidad $ unAuto }
 
 mapCarrera :: ([Auto] -> [Auto]) -> Carrera -> Carrera
-mapCarrera funcion carrera = carrera{participantes = funcion . participantes $ carrera}
+mapCarrera funcion carrera = carrera{ participantes = funcion . participantes $ carrera}
 
+--aplicarSoloSi :: (Auto -> Bool) -> Carrera -> Carrera
+
+--------------------------------------------------------------------------
 deReversaRocha :: Truco
-deReversaRocha carrera = mapNafta . (+) . (* 5). longitudPista $ carrera
+deReversaRocha carrera = mapNafta . (+) . (*5) . longitudPista $ carrera
 
 -- Vuelta de carrera
 
@@ -63,8 +65,8 @@ longitudNombre = length . nombre
 restarCombustibleVueltaUnAuto :: Carrera -> Auto -> Auto
 restarCombustibleVueltaUnAuto carrera unAuto = mapNafta (subtract . (* (longitudNombre unAuto)) . longitudPista $ carrera) unAuto
 
-restarCombustibleVuelta :: Carrera -> [Auto] -> [Auto]
-restarCombustibleVuelta carrera autos = map (restarCombustibleVueltaUnAuto carrera) $ autos
+restarCombustibleVuelta :: Carrera -> Carrera
+restarCombustibleVuelta unaCarrera = mapCarrera (map $ restarCombustibleVueltaUnAuto unaCarrera) unaCarrera
 
 -----------------------------------------------------------------------
 
@@ -77,9 +79,8 @@ incrementoVelocidadVuelta unAuto
 aumentarVelocidadVueltaUnAuto :: Auto -> Auto
 aumentarVelocidadVueltaUnAuto unAuto = mapVelocidad ( (+) . incrementoVelocidadVuelta $ unAuto) unAuto
 
-aumentarVelocidadVuelta :: [Auto] -> [Auto]
-aumentarVelocidadVuelta autos = map aumentarVelocidadVueltaUnAuto autos
-
+aumentarVelocidadVuelta :: Carrera -> Carrera
+aumentarVelocidadVuelta  = mapCarrera . map $ aumentarVelocidadVueltaUnAuto
 
 -------------------------------------------------------------------------
 
@@ -98,4 +99,4 @@ autoMasLentoDeLaCarrera autos = foldl1 masLentoEntreDosAutos autos
 --------------------------------------------------------------------------
 
 darVuelta :: Carrera -> Carrera
-darVuelta unaCarrera = restarCombustibleVuelta unaCarrera . aumentarVelocidadVuelta $ autos
+darVuelta unaCarrera = restarCombustibleVuelta . aumentarVelocidadVuelta $ unaCarrera
