@@ -25,7 +25,7 @@ type Publico = [String]
 
 
 carrerarda :: Carrera
-carrerarda = Carrera 6 5 [rodra,gushtav] []
+carrerarda = Carrera 6 5 [rodra,gushtav,biankerr] []
 
 rochaMcQueen :: Auto
 rochaMcQueen = Auto "rochaMcQueen" 282 10 "Ronco" deReversaRocha
@@ -37,7 +37,7 @@ gushtav :: Auto
 gushtav = Auto "gushtav" 100 7 "Peti" deReversaRocha
 
 rodra :: Auto
-rodra = Auto "rodra" 153 8 "Tais" deReversaRocha
+rodra = Auto "rodra" 153 8 "Tais" seguirIgual
 
 --- Funciones auxiliares
 
@@ -54,6 +54,9 @@ mapCarrera funcion carrera = carrera{ participantes = funcion . participantes $ 
 --------------------------------------------------------------------------
 deReversaRocha :: Truco
 deReversaRocha carrera = mapNafta . (+) . (*5) . longitudPista $ carrera
+
+seguirIgual :: Truco
+seguirIgual carrera auto = aplicarTruco carrera auto
 
 -- Vuelta de carrera
 
@@ -82,6 +85,9 @@ aumentarVelocidadVuelta  = mapCarrera . map $ aumentarVelocidadVueltaUnAuto
 
 -------------------------------------------------------------------------
 
+--Logica de esta parte: Identificar el auto mas lento, sacarlo de la lista de autos, actualizar la lista de autos de la carrera
+--sin el auto lento. Aplicar truco al auto lento y agregarlo a la lista actualizada de la carrera.
+
 masLentoEntreDosAutos :: Auto -> Auto -> Auto
 masLentoEntreDosAutos auto1 auto2
     | velocidad auto1 > velocidad auto2 = auto2
@@ -105,12 +111,19 @@ participantesRapidos carrera autos = (filter (not.esElAutoMasLento carrera)) $ a
 agregarParticipantesRapidos :: Carrera -> Carrera
 agregarParticipantesRapidos carrera = mapCarrera (participantesRapidos carrera) carrera
 
-agregarAutoLento :: Carrera -> Carrera
-agregarAutoLento carrera = mapCarrera ((:) . aplicarTrucoAutoMasLento $ carrera) carrera
+auxAgregarAutos :: Carrera -> [Auto] -> [Auto]
+auxAgregarAutos carrera autos =  (aplicarTrucoAutoMasLento carrera) : autos
 
 agregarAutos :: Carrera -> Carrera
-agregarAutos carrera =  mapCarrera ((aplicarTrucoAutoMasLento carrera) : (participantes $ agregarParticipantesRapidos carrera)) carrera
+agregarAutos carrera = mapCarrera (auxAgregarAutos carrera) (agregarParticipantesRapidos carrera)
 --------------------------------------------------------------------------
 
---darVuelta :: Carrera -> Carrera
---darVuelta unaCarrera = restarCombustibleVuelta . aumentarVelocidadVuelta $ unaCarrera
+darVuelta :: Carrera -> Carrera
+darVuelta = agregarAutos . restarCombustibleVuelta . aumentarVelocidadVuelta
+
+correrCarrera :: Carrera -> Carrera
+correrCarrera carrera = foldr ($) carrera (replicate (vueltas carrera) darVuelta)
+--                                  b           --------------------------------[a]
+--                                                 (Carrera -> [Carrera -> Carrera])
+
+--($): ((Carrera -> [Carrera -> Carrera]) -> Carrera) -> (Carrera -> [Carrera -> Carrera]) -> Carrera
