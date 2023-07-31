@@ -51,8 +51,6 @@ mapVelocidad f unAuto = unAuto{ velocidad = f . velocidad $ unAuto }
 mapCarrera :: ([Auto] -> [Auto]) -> Carrera -> Carrera
 mapCarrera funcion carrera = carrera{ participantes = funcion . participantes $ carrera}
 
---aplicarSoloSi :: (Auto -> Bool) -> Carrera -> Carrera
-
 --------------------------------------------------------------------------
 deReversaRocha :: Truco
 deReversaRocha carrera = mapNafta . (+) . (*5) . longitudPista $ carrera
@@ -89,14 +87,30 @@ masLentoEntreDosAutos auto1 auto2
     | velocidad auto1 > velocidad auto2 = auto2
     | otherwise = auto1
 
+autoMasLentoDeLaCarrera :: Carrera -> Auto
+autoMasLentoDeLaCarrera carrera = foldl1 masLentoEntreDosAutos . participantes $ carrera
+
+esElAutoMasLento :: Carrera -> Auto -> Bool
+esElAutoMasLento carrera unAuto = nombre unAuto == (nombre . autoMasLentoDeLaCarrera $ carrera)
+
 aplicarTruco :: Carrera -> Auto -> Auto
 aplicarTruco carrera unAuto = (truco unAuto) carrera unAuto
 
-autoMasLentoDeLaCarrera :: [Auto] -> Auto
-autoMasLentoDeLaCarrera autos = foldl1 masLentoEntreDosAutos autos
+aplicarTrucoAutoMasLento :: Carrera -> Auto
+aplicarTrucoAutoMasLento carrera = aplicarTruco carrera . autoMasLentoDeLaCarrera $ carrera
 
+participantesRapidos :: Carrera -> [Auto] -> [Auto]
+participantesRapidos carrera autos = (filter (not.esElAutoMasLento carrera)) $ autos
 
+agregarParticipantesRapidos :: Carrera -> Carrera
+agregarParticipantesRapidos carrera = mapCarrera (participantesRapidos carrera) carrera
+
+agregarAutoLento :: Carrera -> Carrera
+agregarAutoLento carrera = mapCarrera ((:) . aplicarTrucoAutoMasLento $ carrera) carrera
+
+agregarAutos :: Carrera -> Carrera
+agregarAutos carrera =  mapCarrera ((aplicarTrucoAutoMasLento carrera) : (participantes $ agregarParticipantesRapidos carrera)) carrera
 --------------------------------------------------------------------------
 
-darVuelta :: Carrera -> Carrera
-darVuelta unaCarrera = restarCombustibleVuelta . aumentarVelocidadVuelta $ unaCarrera
+--darVuelta :: Carrera -> Carrera
+--darVuelta unaCarrera = restarCombustibleVuelta . aumentarVelocidadVuelta $ unaCarrera
