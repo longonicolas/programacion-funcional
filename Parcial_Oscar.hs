@@ -8,6 +8,7 @@ data Ninja = Ninja{
     rango::Int
 } deriving Show
 
+
 data Herramienta = Herramienta{
     nombreHerramienta::Nombre,
     cantidad::Int
